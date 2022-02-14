@@ -1,8 +1,7 @@
 import os
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-
-db = SQLAlchemy()
+from .db import db
+from . import auth
 
 def create_app(test_config=None):
     # create and configure the app
@@ -21,14 +20,7 @@ def create_app(test_config=None):
         pass
     
     db.init_app(app)
-
-    # a simple page that says hello
-    @app.route('/hello')
-    def hello():
-        result = db.session.execute("SELECT * FROM account")
-        print(dir(result))
-        account = result.fetchone()
-        return f'{account.username}, {account.password}'
+    app.register_blueprint(auth.bp)
 
     return app
     
