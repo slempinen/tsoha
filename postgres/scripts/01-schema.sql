@@ -9,7 +9,8 @@ CREATE TABLE account
 CREATE TABLE forum
 (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(30) UNIQUE NOT NULL
+    name VARCHAR(30) UNIQUE NOT NULL,
+    description TEXT
 );
 
 CREATE TABLE private_forum
@@ -41,3 +42,4 @@ CREATE TABLE comment
     topic_id SERIAL REFERENCES topic(id) NOT NULL,
     body TEXT
 );
+
