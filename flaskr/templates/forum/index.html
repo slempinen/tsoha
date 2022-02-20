@@ -5,6 +5,11 @@
 {% endblock %}
 
 {% block content %}
-    NO CONTENT FOR NOW
+  {% for forum in forums %}
+    <a href="{{ url_for('forum.forum', forum_id=forum.id) }}">
+      <h2>{{ forum.name }}</h2>
+      <div>{{ forum.description }}</div>
+    </a>
+  {% endfor %}
 {% endblock %}
 
