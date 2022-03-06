@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}{{ topic.title }} - {{forum.name}}{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+  {% if g.user %}
+    <a href="{{ url_for('forum.commentForm', forum_id=forum.id, topic_id=topic.id) }}">New comment</a>
+  {% else %}
+    <span>Login to comment</span>
+  {% endif %}
+
+  {% for comment in comments %}
+    <span>{{ comment.username }}</span>
+    <span>{{ comment.body }}<span>
+  {% endfor %}
+{% endblock %}
+
+
