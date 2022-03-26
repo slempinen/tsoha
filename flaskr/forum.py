@@ -21,6 +21,8 @@ def index():
             WHERE private_forum_account.account_id = :account_id;
 
         '''
+        if g.user.is_admin:
+            getUserForums = 'SELECT * FROM forum'
         forums = db.session.execute(getUserForums, { 'account_id': g.user.id}).fetchall()
     else:
         getPublicForums = 'SELECT * FROM forum WHERE NOT private'
