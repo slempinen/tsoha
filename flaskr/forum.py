@@ -54,24 +54,31 @@ def createForum():
     forum_is_private = request.form.get('private') == 'on'
       
     error = None
+    insertForum = None
+    insertPrivateForumAccount = None
 
     if forum_password and not forum_is_private:
         error = 'Public forums cannot be password protected'
 
     if forum_password:
         forum_password = generate_password_hash(forum_password)
-        insertForum = 'INSERT INTO forum (name, description, private, password, creator_account) VALUES (:name, :description, :private, :password, :creator_account)'
+        insertForum = 'INSERT INTO forum (name, description, private, password, creator_account) VALUES (:name, :description, :private, :password, :creator_account) RETURNING *'
         values = { 'name': forum_name, 'description': forum_description, 'private': forum_is_private, 'password': forum_password, 'creator_account': g.user.id }
     else:
-        insertForum = 'INSERT INTO forum (name, description, private, creator_account) VALUES (:name, :description, :private, :creator_account)'
+        insertForum = 'INSERT INTO forum (name, description, private, creator_account) VALUES (:name, :description, :private, :creator_account) RETURNING *'
         values = { 'name': forum_name, 'description': forum_description, 'private': forum_is_private, 'creator_account': g.user.id}
+
+    if forum_is_private:
+        insertPrivateForumAccount = 'INSERT INTO private_forum_account (account_id, forum_id) VALUES (:account_id, :forum_id)'
 
     if error is not None:
         flash(error)
         return redirect(url_for("forum.forumForm"))
 
     try:
-        db.session.execute(insertForum, values)
+        result = db.session.execute(insertForum, values).fetchone()
+        if (insertPrivateForumAccount is not None):
+            db.session.execute(insertPrivateForumAccount, { 'account_id': g.user.id, 'forum_id': result.id })
         db.session.commit()
         return redirect(url_for("forum.index"))
     except IntegrityError:
