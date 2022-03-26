@@ -5,6 +5,9 @@
 {% endblock %}
 
 {% block content %}
+  {% if g.user.is_admin %}
+    <a href="{{ url_for('forum.forumForm') }}">New forum</a>
+  {% endif %}
   {% for forum in forums %}
     <a href="{{ url_for('forum.forum', forum_id=forum.id) }}">
       <h2>{{ forum.name }}</h2>

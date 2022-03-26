@@ -2,19 +2,31 @@ from flask import (
     Blueprint, flash, g, redirect, render_template, request, url_for
 )
 from werkzeug.exceptions import abort
+from werkzeug.security import check_password_hash, generate_password_hash
 from sqlalchemy.exc import IntegrityError
 
-from flaskr.auth import login_required
+from flaskr.auth import login_required, admin_required
 from flaskr.db import db
 
 bp = Blueprint('forum', __name__)
 
 @bp.route('/')
 def index():
-    getForums = 'SELECT * FROM forum'
-    forums = db.session.execute(getForums).fetchall()
-    return render_template('forum/index.html', forums=forums)
+    if g.user is not None:
+        getUserForums = '''
+            SELECT forum.* FROM forum
+            WHERE NOT forum.private OR forum.password IS NOT NULL
+            UNION
+            SELECT forum.* FROM forum JOIN private_forum_account ON private_forum_account.forum_id = forum.id
+            WHERE private_forum_account.account_id = :account_id;
 
+        '''
+        forums = db.session.execute(getUserForums, { 'account_id': g.user.id}).fetchall()
+    else:
+        getPublicForums = 'SELECT * FROM forum WHERE NOT private'
+        forums = db.session.execute(getPublicForums).fetchall()
+
+    return render_template('forum/index.html', forums=forums)
 
 @bp.route('/forum/<int:forum_id>', methods=['GET'])
 def forum(forum_id):
@@ -25,6 +37,46 @@ def forum(forum_id):
     topics = db.session.execute(getTopics, { "forum_id": forum_id }).fetchall()
 
     return render_template('forum/forum.html', forum=forum, topics=topics)
+
+@bp.route('/forum/create', methods=['GET'])
+@login_required
+def forumForm():
+    return render_template('forum/create_forum.html')
+
+@bp.route('/forum', methods=['POST'])
+@admin_required
+@login_required
+def createForum():
+    forum_name = request.form['name']
+    forum_description = request.form['description']
+    forum_password = request.form['password']
+    # A html checkbox evaluates to 'on' when checked i.e when forum is private
+    forum_is_private = request.form.get('private') == 'on'
+      
+    error = None
+
+    if forum_password and not forum_is_private:
+        error = 'Public forums cannot be password protected'
+
+    if forum_password:
+        forum_password = generate_password_hash(forum_password)
+        insertForum = 'INSERT INTO forum (name, description, private, password, creator_account) VALUES (:name, :description, :private, :password, :creator_account)'
+        values = { 'name': forum_name, 'description': forum_description, 'private': forum_is_private, 'password': forum_password, 'creator_account': g.user.id }
+    else:
+        insertForum = 'INSERT INTO forum (name, description, private, creator_account) VALUES (:name, :description, :private, :creator_account)'
+        values = { 'name': forum_name, 'description': forum_description, 'private': forum_is_private, 'creator_account': g.user.id}
+
+    if error is not None:
+        flash(error)
+        return redirect(url_for("forum.forumForm"))
+
+    try:
+        db.session.execute(insertForum, values)
+        db.session.commit()
+        return redirect(url_for("forum.index"))
+    except IntegrityError:
+        flash('Error creating new forum')
+        return redirect(url_for("forum.forumForm"))
 
 @bp.route('/forum/<int:forum_id>', methods=['POST'])
 @login_required
