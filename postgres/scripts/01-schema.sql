@@ -4,13 +4,13 @@ CREATE TABLE account
     username VARCHAR(50) UNIQUE  NOT NULL,
     password VARCHAR NOT NULL,
     email    VARCHAR(50) UNIQUE NOT NULL,
-    is_admin BOOLEAN
+    is_admin BOOLEAN NOT NULL DEFAULT false
 );
 
 CREATE TABLE forum
 (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(30) UNIQUE NOT NULL,
+    name VARCHAR(100) UNIQUE NOT NULL,
     description TEXT,
     creator_account INTEGER REFERENCES account(id),
     private BOOLEAN NOT NULL DEFAULT false,
@@ -29,7 +29,7 @@ CREATE TABLE topic
     id SERIAL PRIMARY KEY,
     forum_id INTEGER REFERENCES forum(id) NOT NULL,
     account_id INTEGER REFERENCES account(id) NOT NULL,
-    title VARCHAR(30),
+    title VARCHAR(100),
     body TEXT NOT NULL
 );
 
