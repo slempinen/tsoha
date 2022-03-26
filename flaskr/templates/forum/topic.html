@@ -5,6 +5,9 @@
 {% endblock %}
 
 {% block content %}
+  <div>
+    {{ topic.body }}
+  </div>
   {% if g.user %}
     <a href="{{ url_for('forum.commentForm', forum_id=forum.id, topic_id=topic.id) }}">New comment</a>
   {% else %}
@@ -12,8 +15,8 @@
   {% endif %}
 
   {% for comment in comments %}
-    <span>{{ comment.username }}</span>
-    <span>{{ comment.body }}<span>
+    <div>{{ comment.username }}:</div>
+    <div>{{ comment.body }}</div>
   {% endfor %}
 {% endblock %}
 

@@ -56,12 +56,11 @@ def topic(forum_id, topic_id):
     topic = db.session.execute(getTopic, { "topic_id": topic_id }).fetchone()
 
     getComments = '''
-        SELECT comment.body, account.username 
-        FROM comment 
-        JOIN topic ON topic.id = :topic_id AND topic.forum_id = :forum_id
-        JOIN account ON comment.account_id = account.id
+        SELECT account.username, comment.body
+        FROM comment JOIN account on account.id = comment.account_id
+        WHERE comment.topic_id = :topic_id;
     '''
-    values = { 'topic_id': topic_id, 'forum_id': forum_id }
+    values = { 'topic_id': topic_id }
     comments = db.session.execute(getComments, values).fetchall()
 
     return render_template('forum/topic.html', forum=forum, topic=topic, comments=comments)
