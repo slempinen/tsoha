@@ -86,3 +86,14 @@ def login_required(view):
         return view(**kwargs)
 
     return wrapped_view
+
+def admin_required(view):
+    @functools.wraps(view)
+    def wrapped_view(**kwargs):
+        if not g.user.is_admin:
+            flash('Operation requires admin privileges')
+            return redirect(url_for('forum.index'))
+
+        return view(**kwargs)
+
+    return wrapped_view
