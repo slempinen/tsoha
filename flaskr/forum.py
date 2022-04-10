@@ -100,6 +100,8 @@ def createTopic(forum_id):
         return redirect(url_for("forum.forum", forum_id=forum_id))
     except IntegrityError:
         flash('Error creating new topic')
+        return redirect(url_for("forum.topicForm", forum_id=forum_id))
+
     
 @bp.route('/forum/<int:forum_id>/create', methods=['GET'])
 @login_required
