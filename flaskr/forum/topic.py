@@ -15,7 +15,7 @@ def topic(forum_id, topic_id):
     topic = db.session.execute(getTopic, { "topic_id": topic_id }).fetchone()
 
     getComments = '''
-        SELECT account.username, comment.body
+        SELECT account.username, comment.*
         FROM comment JOIN account on account.id = comment.account_id
         WHERE comment.topic_id = :topic_id;
     '''

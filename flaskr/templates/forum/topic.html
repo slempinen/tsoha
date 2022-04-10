@@ -15,6 +15,9 @@
   {% endif %}
 
   {% for comment in comments %}
+    {% if comment.account_id == g.user.id %}
+    <a href="{{ url_for('forum.commentEditForm', comment_id=comment.id)}}">Edit comment</a>
+    {% endif %}
     <div>{{ comment.username }}:</div>
     <div>{{ comment.body }}</div>
   {% endfor %}
