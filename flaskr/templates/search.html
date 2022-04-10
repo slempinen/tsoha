@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}Search results for "{{request.args.get('q')}}"{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+  {% for comment in comments %}
+    <div>{{ comment.body }}</div>
+  {% endfor %}
+{% endblock %}

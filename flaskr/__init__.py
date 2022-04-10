@@ -2,6 +2,7 @@ import os
 from flask import Flask
 from .db import db
 from . import auth
+from . import search
 from .forum import forum_blueprint
 
 def create_app(test_config=None):
@@ -22,6 +23,7 @@ def create_app(test_config=None):
     
     db.init_app(app)
     app.register_blueprint(auth.bp)
+    app.register_blueprint(search.bp)
     app.register_blueprint(forum_blueprint)
     app.add_url_rule('/', endpoint='index')
 
