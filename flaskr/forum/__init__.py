@@ -2,4 +2,4 @@ from flask import Blueprint, url_for
 
 forum_blueprint = Blueprint('forum', __name__)
 
-from . import forum, topic, comment
+from . import forum, topic, comment, private_forum
