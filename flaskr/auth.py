@@ -90,7 +90,7 @@ def login_required(view):
 def admin_required(view):
     @functools.wraps(view)
     def wrapped_view(**kwargs):
-        if not g.user.is_admin:
+        if not (g.user or g.user.is_admin):
             flash('Operation requires admin privileges')
             return redirect(url_for('forum.index'))
 

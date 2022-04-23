@@ -18,7 +18,7 @@ def index():
             WHERE private_forum_account.account_id = :account_id;
 
         '''
-        if g.user.is_admin:
+        if g.user and g.user.is_admin:
             getUserForums = 'SELECT * FROM forum'
         forums = db.session.execute(getUserForums, { 'account_id': g.user.id}).fetchall()
     else:
@@ -31,7 +31,12 @@ def index():
 def forum(forum_id):
     getForum = 'SELECT * FROM forum WHERE id = (:forum_id)'
     forum = db.session.execute(getForum, { "forum_id": forum_id }).fetchone()
+    getTopics = 'SELECT * FROM topic WHERE forum_id = (:forum_id)'
+    topics = db.session.execute(getTopics, { "forum_id": forum_id }).fetchall()
     error = None
+
+    if (g.user and g.user.is_admin):
+        return render_template('forum/forum.html', forum=forum, topics=topics)
 
     is_forum_member = True
     if (forum.private):
@@ -49,8 +54,6 @@ def forum(forum_id):
     if (not is_forum_member and forum.password is None):
         flash('You are not a member of this private forum')
         return redirect(url_for("forum.index"))
-    getTopics = 'SELECT * FROM topic WHERE forum_id = (:forum_id)'
-    topics = db.session.execute(getTopics, { "forum_id": forum_id }).fetchall()
     return render_template('forum/forum.html', forum=forum, topics=topics)
 
 @forum_blueprint.route('/forum/create', methods=['GET'])
