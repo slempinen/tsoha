@@ -47,9 +47,22 @@ def createTopic(forum_id):
         flash('Error creating new topic')
         return redirect(url_for("forum.topicForm", forum_id=forum_id))
 
-@forum_blueprint.route('/topic/<int:topic_id>', methods=['DELETE'])
+@forum_blueprint.route('/topic/<int:topic_id>/delete', methods=['POST'])
 @login_required
-def deleteTopic():
-    pass
+@admin_required
+def deleteTopic(topic_id):
+    try:
+        sql = 'DELETE FROM topic WHERE id = :topic_id'
+        db.session.execute(sql, { 'topic_id': topic_id })
+        db.session.commit()
+    except:
+        flash('Topic does not exist')
+        return redirect(url_for("forum.index"))
+    flash('Topic deleted')
+    return redirect(url_for("forum.index"))
+    
+
+
+    
     
 

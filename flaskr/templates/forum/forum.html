@@ -15,5 +15,10 @@
     <a href="{{ url_for('forum.topic', forum_id=forum.id, topic_id=topic.id) }}">
       <h2>{{ topic.title }}</h2>
     </a>
+  {% if g.user and g.user.is_admin %}
+    <form method="post" action="/topic/{{ topic.id }}/delete">
+      <input type="submit" value="Delete">
+    </form>
+  {% endif %}
   {% endfor %}
 {% endblock %}
