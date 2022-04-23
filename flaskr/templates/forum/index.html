@@ -12,6 +12,8 @@
     <a href="{{ url_for('forum.forum', forum_id=forum.id) }}">
       <h2>{{ forum.name }}</h2>
       <div>{{ forum.description }}</div>
+      <div>Total comments: {{ forum.comment_count }}</div>
+      <div>Last posted: {{ forum.last_comment_time }}</div>
       {% if g.user.is_admin and forum.private %}
         <a href="{{ url_for('forum.private_forum_form', forum_id=forum.id) }}">Add members</a>
       {% endif %}

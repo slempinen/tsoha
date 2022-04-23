@@ -11,15 +11,38 @@ from flaskr.db import db
 def index():
     if g.user is not None:
         getUserForums = '''
-            SELECT forum.* FROM forum
+            SELECT
+              forum.*,
+              COUNT(comment.id) AS comment_count,
+              MAX(comment.created_at) AS last_comment_time
+            FROM forum
+              LEFT JOIN topic ON topic.forum_id = forum.id
+              LEFT JOIN comment ON comment.topic_id = topic.id
             WHERE NOT forum.private OR forum.password IS NOT NULL
+            GROUP BY forum.id
             UNION
-            SELECT forum.* FROM forum JOIN private_forum_account ON private_forum_account.forum_id = forum.id
-            WHERE private_forum_account.account_id = :account_id;
-
+            SELECT
+              forum.*,
+              COUNT(comment.id) AS comment_count,
+              MAX(comment.created_at) AS last_comment_time
+            FROM forum
+              LEFT JOIN topic ON topic.forum_id = forum.id
+              LEFT JOIN comment ON comment.topic_id = topic.id
+              JOIN private_forum_account ON private_forum_account.forum_id = forum.id
+            WHERE private_forum_account.account_id = :account_id
+            GROUP BY forum.id
         '''
         if g.user and g.user.is_admin:
-            getUserForums = 'SELECT * FROM forum'
+            getUserForums = '''
+                SELECT
+                  forum.*,
+                  COUNT(comment.id) AS comment_count,
+                  MAX(comment.created_at) AS last_comment_time
+                FROM forum
+                  LEFT JOIN topic ON topic.forum_id = forum.id
+                  LEFT JOIN comment ON comment.topic_id = topic.id
+                GROUP BY forum.id
+            '''
         forums = db.session.execute(getUserForums, { 'account_id': g.user.id}).fetchall()
     else:
         getPublicForums = 'SELECT * FROM forum WHERE NOT private'
