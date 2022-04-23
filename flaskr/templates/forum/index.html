@@ -12,6 +12,9 @@
     <a href="{{ url_for('forum.forum', forum_id=forum.id) }}">
       <h2>{{ forum.name }}</h2>
       <div>{{ forum.description }}</div>
+      {% if g.user.is_admin and forum.private %}
+        <a href="{{ url_for('forum.private_forum_form', forum_id=forum.id) }}">Add members</a>
+      {% endif %}
     </a>
   {% endfor %}
 {% endblock %}

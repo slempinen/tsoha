@@ -3,7 +3,7 @@ from flask import (
     flash, g, redirect, render_template, request, url_for
 )
 from sqlalchemy.exc import IntegrityError
-from flaskr.auth import login_required
+from flaskr.auth import login_required, admin_required
 from flaskr.db import db
 
 @forum_blueprint.route('/forum/<int:forum_id>/topic/<int:topic_id>', methods=['GET'])
