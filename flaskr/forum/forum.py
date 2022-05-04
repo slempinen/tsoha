@@ -45,7 +45,17 @@ def index():
             '''
         forums = db.session.execute(getUserForums, { 'account_id': g.user.id}).fetchall()
     else:
-        getPublicForums = 'SELECT * FROM forum WHERE NOT private'
+        getPublicForums = '''
+            SELECT
+              forum.*,
+              COUNT(comment.id) AS comment_count,
+              MAX(comment.created_at) AS last_comment_time
+            FROM forum
+              LEFT JOIN topic ON topic.forum_id = forum.id
+              LEFT JOIN comment ON comment.topic_id = topic.id
+            WHERE NOT forum.private
+            GROUP BY forum.id
+            '''
         forums = db.session.execute(getPublicForums).fetchall()
 
     return render_template('forum/index.html', forums=forums)
